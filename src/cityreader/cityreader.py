@@ -1,6 +1,14 @@
 # Create a class to hold a city location. Call the class "City". It should have
 # fields for name, lat and lon (representing latitude and longitude).
 
+class City:
+  def __init__(self, name, lat, lon):
+    self.name = name
+    self.lat = lat
+    self.lon = lon
+
+  def __str__(self):
+    return f"{self.name} ({self.lat}, {self.lon})"
 
 # We have a collection of US cities with population over 750,000 stored in the
 # file "cities.csv". (CSV stands for "comma-separated values".)
@@ -14,12 +22,19 @@
 #
 # Note that the first line of the CSV is header that describes the fields--this
 # should not be loaded into a City object.
+import csv
+
 cities = []
 
 def cityreader(cities=[]):
-  # TODO Implement the functionality to read from the 'cities.csv' file
-  # For each city record, create a new City instance and add it to the 
-  # `cities` list
+  
+    with open("cities.csv", newline="") as csvfile:
+
+      lines = csv.reader(csvfile, delimiter=",")
+
+      for index, data in enumerate(lines):
+        if index > 0:
+          cities.append(City(data[0], float(data[3]), float(data[4])))
     
     return cities
 
@@ -58,14 +73,37 @@ for c in cities:
 # Tucson: (32.1558,-110.8777)
 # Salt Lake City: (40.7774,-111.9301)
 
-# TODO Get latitude and longitude values from the user
+# Get latitude and longitude values from the user
+def find_cities_in_bounding_box():
+
+  print("Search for a city within a rectangular bounding box.")
+  corner_1_input = input("Enter the latitude and longitude of a coordinate for the corners of the bounding box. Separate the values by a comma.\n")
+  corner_2_input = input("Enter the latitude and longitude of a coordinate for the opposite corner of the bounding box. Separate the values by a comma.\n")
+
+  # convert coordinates into floats
+  corner_1 = [float(value.strip()) for value in corner_1_input.split(",")]
+  corner_2 = [float(value.strip()) for value in corner_2_input.split(",")]
+
+  # call function with floats
+  global cities
+  cities_found = cityreader_stretch(corner_1[0], corner_1[1], corner_2[0], corner_2[1], cities)
+
+  if len(cities_found) > 0:
+    print("These are the cities within your specified region:\n")
+    
+    for city in cities_found:
+      print(city)
+  
+  else:
+    print("No cities were found within your specified region.\n")
+
+  return cities_found
 
 def cityreader_stretch(lat1, lon1, lat2, lon2, cities=[]):
   # within will hold the cities that fall within the specified region
-  within = []
-
-  # TODO Ensure that the lat and lon valuse are all floats
-  # Go through each city and check to see if it falls within 
-  # the specified coordinates.
+  within = [city for city in cities if (city.lat >= min(lat1, lat2)) and (city.lat <= max(lat1, lat2)) and (city.lon >= min(lon1, lon2)) and (city.lon <= max(lon1, lon2))]
 
   return within
+
+# invoke function for user input (comment out to use test_stretch.py file)
+find_cities_in_bounding_box()
